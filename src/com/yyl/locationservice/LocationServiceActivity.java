@@ -26,7 +26,7 @@ public class LocationServiceActivity extends FragmentActivity
 	private AlarmManager alarms;
 	SimpleCursorAdapter adapter;
 	
-	private long UPDATE_INTERVAL = 30000;
+	private long UPDATE_INTERVAL = 10000;
 	private int START_DELAY = 5;
 	private String DEBUG_TAG = "LocationServiceActivity";
 	
