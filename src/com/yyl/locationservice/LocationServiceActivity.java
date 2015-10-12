@@ -46,13 +46,17 @@ public class LocationServiceActivity extends FragmentActivity
     }
     
     public void stop(View view){
-    	tv = (TextView) findViewById(R.id.tv1);
-		tv.setText("Stop tracking");
-		Intent intent = new Intent(getBaseContext(), AlarmReceiver.class);
-    	tracking = PendingIntent.getBroadcast(getBaseContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-    	alarms = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-		alarms.cancel(tracking);
-		Log.d(DEBUG_TAG, ">>>Stop tracking()");
+        doStop();
+    }
+    
+    private void doStop() {
+        tv = (TextView) findViewById(R.id.tv1);
+        tv.setText("Stop tracking");
+        Intent intent = new Intent(getBaseContext(), AlarmReceiver.class);
+        tracking = PendingIntent.getBroadcast(getBaseContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        alarms = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarms.cancel(tracking);
+        Log.d(DEBUG_TAG, ">>>Stop tracking()");
     }
     
     private void setRecurringAlarm(Context context) {
@@ -78,6 +82,7 @@ public class LocationServiceActivity extends FragmentActivity
     @Override
     public void onPause() {
     	super.onPause();
+    	doStop();
     }
     
     private void drawTable() {

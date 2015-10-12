@@ -46,15 +46,31 @@ public class UpdateLocation extends Service implements LocationListener {
 
             // getting network status
             boolean isNetworkEnabled = mgr.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            
+            // getting passive status
+            boolean isPassiveEnabled = mgr.isProviderEnabled(LocationManager.PASSIVE_PROVIDER);
 
-            Log.d(DEBUG_TAG, "handleMessage() isGPSEnabled:" + isGPSEnabled + ", isNetworkEnabled:" + isNetworkEnabled);
+            Log.d(DEBUG_TAG, "handleMessage() isGPSEnabled:" + isGPSEnabled + ", isNetworkEnabled:" + isNetworkEnabled + ", isPassiveEnabled:" + isPassiveEnabled);
 
-            if (!isGPSEnabled && !isNetworkEnabled) {
+            Criteria criteria = new Criteria();
+            criteria.setAltitudeRequired(false);
+            criteria.setBearingRequired(false);
+            criteria.setCostAllowed(false);
+            criteria.setPowerRequirement(Criteria.POWER_LOW);       
+             
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            String providerFine = mgr.getBestProvider(criteria, true);
+             
+            criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+            String providerCoarse = mgr.getBestProvider(criteria, true);
+            
+            
+            if (!isGPSEnabled && !isNetworkEnabled && !isPassiveEnabled) {
                 // no network provider is enabled
             } else {
                 // this.canGetLocation = true;
                 if (isNetworkEnabled) {
-                    mgr.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 1, UpdateLocation.this);
+                    mgr.requestLocationUpdates(providerCoarse, 1000, 1, UpdateLocation.this);
                     Log.d(DEBUG_TAG, "Network Enabled");
                     if (mgr != null) {
                         location = mgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -68,7 +84,7 @@ public class UpdateLocation extends Service implements LocationListener {
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
                     if (location == null) {
-                        mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, UpdateLocation.this);
+                        mgr.requestLocationUpdates(providerFine, 1000, 1, UpdateLocation.this);
                         Log.d(DEBUG_TAG, "GPS Enabled");
                         if (mgr != null) {
                             location = mgr.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -76,6 +92,22 @@ public class UpdateLocation extends Service implements LocationListener {
                                 latitude = location.getLatitude();
                                 longitude = location.getLongitude();
                                 Log.d(DEBUG_TAG, "GPS Enabled, latitude:" + latitude + ", longitude:" + longitude);
+                            }
+                        }
+                    }
+                }
+
+                // if Passive Enabled get lat/long using Passive Services
+                if (isPassiveEnabled) {
+                    if (location == null) {
+                        mgr.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 1000, 1, UpdateLocation.this);
+                        Log.d(DEBUG_TAG, "Passive Enabled");
+                        if (mgr != null) {
+                            location = mgr.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+                            if (location != null) {
+                                latitude = location.getLatitude();
+                                longitude = location.getLongitude();
+                                Log.d(DEBUG_TAG, "Passive Enabled, latitude:" + latitude + ", longitude:" + longitude);
                             }
                         }
                     }
